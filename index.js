@@ -18,23 +18,26 @@ app.get('/', (req, response) => {
 
     var data = {
         "query": {
-            "multi_match": {
+            "match_phrase": {
                 "query": req.query.q,
-                "type": "most_fields",
+                "type": "cross_fields",
                 "fields": [
                     "firstName",
                     "lastName",
                     "organisation",
-                    "iatacode"]
+                    "iatacode"],
+                "fuzzy" : {
+                    "fuzziness" : 2
+                }
             }
         }
     }
 
     const matcher = {
         query: req.query.q,
-        type: "cross_fields",
+        type: "most_fields",
         fields: ["firstName", "lastName", "organisation", "iatacode"],
-        operator: "and",
+        operator: "or"
     }
     const query = {
         size: req.query.size || 20,
