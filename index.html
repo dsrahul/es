@@ -1,0 +1,111 @@
+<!-- DOCTYPE HTML -->
+<html>
+<head>
+<title>Search Consultants</title>
+</head>
+<body>
+<div id="content"></div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://fb.me/react-0.14.6.js"></script>
+<script src="https://fb.me/react-dom-0.14.6.js"></script>
+<script src="http://fb.me/JSXTransformer-0.12.1.js"></script>
+<script type="text/jsx">
+
+var App = React.createClass({
+    getInitialState: function () {
+        return { searchResults: []}
+    },
+    showResults: function (response) {
+        console.log(response)
+        this.setState({
+            searchResults: response
+        })
+    },
+    search: function (query, size) {
+        console.log('I WILL SEARCH')
+        $.ajax({
+            "url": "http://localhost:8080?q="+query+"&size="+size,
+            "type": "get",
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            headers: {  'Access-Control-Allow-Origin': 'http://localhost:8080' },
+            success: function(data) {
+                console.log('SUCCESS')
+                this.showResults(data)
+            }.bind(this),
+            error: function(data) {
+                console.log('FAILURE')
+                console.log(JSON.stringify(data))
+            },
+        })
+    },
+    render: function(){
+        return (
+            <div>
+                <SearchBox search={this.search}/>
+                <Results searchResults={this.state.searchResults}/>
+            </div>
+        );
+    }
+});
+
+var SearchBox = React.createClass({
+    render: function(){
+        return (
+            <div>
+                <input type="text" ref="query" onKeyUp={this.debounce(this.createAjax, 750)}/>
+                <select ref="size">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="30">30</option>
+                    <option value="40">40</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        );
+    },
+    createAjax: function () {
+        const query = ReactDOM.findDOMNode(this.refs.query).value
+        const size = ReactDOM.findDOMNode(this.refs.size).value
+        this.props.search(query, size)
+    },
+    debounce: function(fn, bufferInterval) {
+        var timeout;
+        return function () {
+          clearTimeout(timeout)
+          timeout = setTimeout(fn.apply.bind(fn, this, arguments), bufferInterval);
+        };
+    }
+});
+
+var Results = React.createClass({
+    render: function(){
+        const resultItems = this.props.searchResults.map((result) => {
+            return <ResultItem key={result._source.travelConsultantId} source={result._source} highlight={result.highlight} />
+        })
+        return(
+            <ul>
+                {resultItems}
+            </ul>
+        );
+    }
+});
+
+var ResultItem = React.createClass({
+    render: function(){
+        const source = this.props.source
+        const highlight = this.props.highlight
+        const firstName = highlight.firstName || source.firstName
+        const lastName = highlight.lastName || source.lastName
+        const organisation = highlight.organisation || source.organisation
+        const iatacode = highlight.iatacode || source.iatacode
+        const add1 = source.addressLine1 || ''
+        const add2 = source.addressLine2 || ''
+        return <li><div dangerouslySetInnerHTML={{ __html: firstName +' '+ lastName + ' ( ' + organisation + ' ) ' + ' ' + iatacode + ' '+ add1 + ' '+ add2}} /></li>;
+    }
+});
+
+ReactDOM.render(<App />,  document.getElementById("content"));
+
+</script>
+</html>
