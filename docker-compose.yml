@@ -34,15 +34,15 @@ services:
     networks:
       - esnet
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:6.2.2
-    ports:
-      - 5601:5601
-    environment:
-      SERVER_NAME: localhost
-      ELASTICSEARCH_URL: http://localhost:9200
-    volumes:
-      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+#  kibana:
+#    image: docker.elastic.co/kibana/kibana:6.2.2
+#    ports:
+#      - 5601:5601
+#    environment:
+#      SERVER_NAME: localhost
+#      ELASTICSEARCH_URL: http://localhost:9200
+#    volumes:
+#      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
 
 volumes:
   esdata1:

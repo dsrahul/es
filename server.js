@@ -12,7 +12,7 @@ app.use(cors()) // Use this after the variable declaration
 app.get('/', (req, response) => {
 
     const client = new es.Client({
-        host: 'localhost:9200',
+        host: 'http://localhost:9200',
         log: 'error'
     })
 
@@ -54,6 +54,17 @@ app.get('/', (req, response) => {
             pre_tags: '<b>',
             post_tags: '</b>',
         },
+    }
+
+    const query2 = {
+        "query": {
+            "query_string" : {
+            "fields" : [
+                "firstName",
+                "lastName"],
+            "query" : "*NIKK* *WARN* *trave*"
+            }
+        }
     }
     client.search({
         index: 'consultants',

@@ -64,14 +64,14 @@
                     return (
                         <form className="form-inline">
                         <div className="form-group">
-                            <input className="form-control" type="text" ref="query" onKeyUp={this.debounce(this.createAjax, 750)}/>
-                                <select className="form-control" ref="size">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                    <option value="40">40</option>
-                                    <option value="50">50</option>
-                                </select>
+                            <input className="form-control" type="text" ref="query" onKeyUp={this.debounce(this.createAjax, 1000)}/>
+			    <select className="form-control" ref="size">
+				<option value="10">10</option>
+				<option value="20">20</option>
+				<option value="30">30</option>
+				<option value="40">40</option>
+				<option value="50">50</option>
+			    </select>
                         </div>
                         </form>
                     );
@@ -97,10 +97,17 @@
                     })
                     return(
                         <div className="row">
-                        <table className="table table-bordered table-striped">
-                            <thead></thead>
-                            <tbody>{resultItems}</tbody>
-                        </table>
+			    <table className="table  table-sm  table-striped">
+				<thead>
+				    <tr>
+					<th scope="col">Name</th>
+					<th scope="col">Organisation</th>
+					<th scope="col">IATA code</th>
+					<th scope="col">Address</th>
+				    </tr>			    
+				</thead>
+				<tbody>{resultItems}</tbody>
+			    </table>
                         </div>
                     );
                 }
@@ -109,6 +116,7 @@
             var ResultItem = React.createClass({
                 render: function(){
                     const source = this.props.source
+                    console.log(JSON.stringify(source , null, 2))
                     const highlight = this.props.highlight
                     const firstName = highlight.firstName || source.firstName
                     const lastName = highlight.lastName || source.lastName
@@ -116,7 +124,13 @@
                     const iatacode = highlight.iatacode || source.iatacode
                     const add1 = source.addressLine1 || ''
                     const add2 = source.addressLine2 || ''
-                    return <tr><td dangerouslySetInnerHTML={{ __html: firstName +' '+ lastName + ' ( ' + organisation + ' ) ' + ' ' + iatacode + ' '+ add1 + ' '+ add2}} /></tr>;
+                    return <tr>
+                        <td dangerouslySetInnerHTML={{ __html: firstName + ' '+ lastName}}></td>
+                        <td dangerouslySetInnerHTML={{ __html: organisation}}></td>
+                        <td dangerouslySetInnerHTML={{ __html: iatacode}}></td>
+                        <td dangerouslySetInnerHTML={{ __html: add1}}></td>
+                        <td dangerouslySetInnerHTML={{ __html: add2}}></td>
+                    </tr>;
                 }
             });
 
