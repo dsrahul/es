@@ -64,6 +64,6 @@ const indexall = (madebulk, callback) => {
 makebulk(inputfile, (response) => {
   console.log("Bulk content prepared")
   indexall(response, (response) => {
-    console.log("Indexing")
+    console.log("Indexed")
   })
 });
