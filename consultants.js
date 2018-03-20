@@ -4,7 +4,8 @@ const client = new elasticsearch.Client( {
   hosts: [
       //'https://odwwg2ng87:kaf2x3j8be@consultants-dev-8491977555.eu-west-1.bonsaisearch.net',
       'http://localhost:9200',
-  ]
+  ],
+  requestTimeout: 60000
 })
 
 

@@ -3,13 +3,13 @@ const es = require('elasticsearch')
 var bodyParser = require('body-parser')
 
 const app = express()
-const cors = require('cors')
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-app.use(cors()) // Use this after the variable declaration
 
-app.get('/', (req, response) => {
+app.use(express.static('public'))
+
+app.get('/search', (req, response) => {
 
     const client = new es.Client({
         host: 'http://localhost:9200',
@@ -26,8 +26,8 @@ app.get('/', (req, response) => {
                     "lastName",
                     "organisation",
                     "iatacode"],
-                "fuzzy" : {
-                    "fuzziness" : 2
+                "fuzzy": {
+                    "fuzziness": 2
                 }
             }
         }
@@ -39,37 +39,60 @@ app.get('/', (req, response) => {
         fields: ["firstName", "lastName", "organisation", "iatacode"],
         operator: "or"
     }
-    const query = {
+    const matcherQuery = {
         size: req.query.size || 20,
         query: {
             multi_match: matcher,
         },
         highlight: {
             fields: {
-                firstName: {"force_source": true },
-                lastName: {"force_source": true },
-                organisation: {"force_source": true },
-                iatacode: {"force_source": true },
+                firstName: { "force_source": true },
+                lastName: { "force_source": true },
+                organisation: { "force_source": true },
+                iatacode: { "force_source": true },
             },
             pre_tags: '<b>',
             post_tags: '</b>',
         },
     }
 
-    const query2 = {
+    const searchTerm = req.query.q.trim().split(' ').map((ele) => {
+        return '*' + ele + '*'}).join(' AND ')
+    const wildcardQuery = {
         "query": {
-            "query_string" : {
-            "fields" : [
-                "firstName",
-                "lastName"],
-            "query" : "*NIKK* *WARN* *trave*"
+            "query_string": {
+                "fields": [
+                    "firstName",
+                    "lastName",
+                    "organisation",
+                    "iatacode"
+                ],
+                "query": searchTerm
             }
+        },
+        "highlight": {
+            "fields": {
+                "firstName": {
+                    "force_source": true
+                },
+                "lastName": {
+                    "force_source": true
+                },
+                "organisation": {
+                    "force_source": true
+                },
+                "iatacode": {
+                    "force_source": true
+                }
+            },
+            "pre_tags": "<b>",
+            "post_tags": "</b>"
         }
     }
     client.search({
         index: 'consultants',
         type: 'info',
-        body: query
+        body: wildcardQuery
     }).then((res) => {
         response.json(res.hits.hits)
     }, (err) => {

@@ -36,7 +36,7 @@
                 },
                 search: function (query, size) {
                     $.ajax({
-                        "url": "http://localhost:8080?q="+query+"&size="+size,
+                        "url": "http://localhost:8080/search?q="+query+"&size="+size,
                         "type": "get",
                         dataType: 'json',
                         contentType: "application/json; charset=utf-8",
@@ -95,6 +95,7 @@
                     const resultItems = this.props.searchResults.map((result) => {
                         return <ResultItem key={result._source.travelConsultantId} source={result._source} highlight={result.highlight} />
                     })
+                    if(resultItems.length > 0) {
                     return(
                         <div className="row">
 			    <table className="table  table-sm  table-striped">
@@ -110,13 +111,15 @@
 			    </table>
                         </div>
                     );
+                    } else {
+			return (<div></div>)
+                    }
                 }
             });
 
             var ResultItem = React.createClass({
                 render: function(){
                     const source = this.props.source
-                    console.log(JSON.stringify(source , null, 2))
                     const highlight = this.props.highlight
                     const firstName = highlight.firstName || source.firstName
                     const lastName = highlight.lastName || source.lastName
