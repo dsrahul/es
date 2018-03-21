@@ -1,17 +1,35 @@
-var elasticsearch=require('elasticsearch');
+const elasticsearch=require('elasticsearch');
 
-var client = new elasticsearch.Client( {
+const client = new elasticsearch.Client( {
   hosts: [
-    'http://localhost:9200/',
-  ]
+      //'https://odwwg2ng87:kaf2x3j8be@consultants-dev-8491977555.eu-west-1.bonsaisearch.net',
+      'http://localhost:9200',
+  ],
+  requestTimeout: 60000
 })
-var inputfile = require("./TTAgents.json");
-var bulk = [];
 
-var makebulk = function(consultantslist, callback){
+
+const indexName = 'consultants'
+const type = 'info'
+
+client.indices.create({
+     index: indexName
+ }, (err, resp, status) => {
+     if (err) {
+         console.log(err);
+     } else {
+         console.log("create", resp);
+     }
+ });
+
+
+const inputfile = require("./TTAgents.json");
+const bulk = [];
+
+const makebulk = (consultantslist, callback) => {
   for (var current in consultantslist){
     bulk.push(
-      { index: {_index: 'consultants', _type: 'info'} },
+      { index: {_index: indexName, _type: type} },
       {
         'travelAgencyId': consultantslist[current].travelAgencyId,
         'travelConsultantId': consultantslist[current].travelConsultantId,
@@ -28,25 +46,24 @@ var makebulk = function(consultantslist, callback){
   callback(bulk);
 }
 
-var indexall = function(madebulk,callback) {
+const indexall = (madebulk, callback) => {
   client.bulk({
     maxRetries: 5,
-    index: 'consultants',
-    type: 'info',
+    index: indexName,
+    type,
     body: madebulk
-  },function(err,resp,status) {
+  }, (err, resp, status) => {
       if (err) {
-        console.log(err);
-      }
-      else {
-        callback(resp.items);
+        console.log(err)
+      } else {
+        callback(resp.items)
       }
   })
 }
 
-makebulk(inputfile, function(response){
-  console.log("Bulk content prepared");
-  indexall(response,function(response){
-    console.log(response);
+makebulk(inputfile, (response) => {
+  console.log("Bulk content prepared")
+  indexall(response, (response) => {
+    console.log("Indexed")
   })
 });
